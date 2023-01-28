@@ -47,17 +47,22 @@ print("[S]: Writing cases out to files")
 
 # print(file_text)
 
-file_reverse = open('out_rev', 'w+')
-file_upper = open('out_upper', 'w+')
+file_reverse = open('outr-proj.txt', 'w+')
+file_upper = open('outup-proj.txt', 'w+')
+
 cur_line = ""
 for c in file_text:
     if c == '\n' and cur_line != "":
+        # print(cur_line)
+        cur_line = cur_line.strip()
         file_reverse.write(cur_line[::-1])
         file_upper.write(cur_line.upper())
+        file_reverse.write('\n')
+        file_upper.write('\n')
         cur_line = ""
     else:
         cur_line += c
-if c != "":
+if cur_line != "":
     file_reverse.write(cur_line[::-1])
     file_upper.write(cur_line.upper())
 
