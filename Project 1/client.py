@@ -30,6 +30,14 @@ time.sleep(1)
 data_from_server=cs.recv(100)
 print("[C]: Data received from server: {}".format(data_from_server.decode('utf-8')))
 
+time.sleep(2)
+
+# sending contents of file to server
+print("[C]: Sending text from file to server")
+file = open('in-proj.txt', 'r')
+cs.send(file.read().encode('utf-8'))
+file.close()
+
 # close the client socket
 cs.close()
 exit()

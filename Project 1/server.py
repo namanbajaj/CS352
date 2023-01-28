@@ -1,6 +1,8 @@
 import socket
 import time
 
+from random import random
+
 try:
     ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("[S]: Server socket created")
@@ -36,6 +38,30 @@ time.sleep(1)
 msg_cap = msg.upper()
 print("[S]: Capitalizing string from client and sending it back: [{}]".format(msg_cap))
 csockid.send(msg_cap.encode('utf-8'))
+
+time.sleep(2)
+
+file_text = csockid.recv(200)
+print("[S]: Recieved message from client")
+print("[S]: Writing cases out to files")
+
+# print(file_text)
+
+file_reverse = open('out_rev', 'w+')
+file_upper = open('out_upper', 'w+')
+cur_line = ""
+for c in file_text:
+    if c == '\n' and cur_line != "":
+        file_reverse.write(cur_line[::-1])
+        file_upper.write(cur_line.upper())
+        cur_line = ""
+    else:
+        cur_line += c
+if c != "":
+    file_reverse.write(cur_line[::-1])
+    file_upper.write(cur_line.upper())
+
+# print(file_text)
 
 # Close the server socket
 ss.close()
