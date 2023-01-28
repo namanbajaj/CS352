@@ -1,0 +1,7 @@
+1.
+There are 2 errors that we see, one is from the client which says '[Errno 111] Connection refused', and another is from the server that says '[Errno 98] Address already in use'.
+
+The reason that we the error from the client side is because the server is not accepting connections, as it is in the process of shutting down.
+The reason that we see the error from the server side is because the server is already running, and we are trying to run it again. It has not been shut down properly from the last time it was run.
+
+2.
