@@ -22,21 +22,21 @@ cs.send(string_to_send.encode('utf-8'))
 print("[C]: Data sent to server: {}".format(string_to_send))
 
 # receive data from the server and write to a file
-file = open('out-proj.txt', 'w+')
+# file = open('out-proj.txt', 'w+')
 
 data_from_server=cs.recv(100)
 print("[C]: Data received from server: {}".format(data_from_server.decode('utf-8')))
-file.write(data_from_server.decode('utf-8'))
-file.write('\n')
+# file.write(data_from_server.decode('utf-8'))
+# file.write('\n')
 
 time.sleep(1)
 
 data_from_server=cs.recv(100)
 print("[C]: Data received from server: {}".format(data_from_server.decode('utf-8')))
-file.write(data_from_server.decode('utf-8'))
-file.write('\n')
+# file.write(data_from_server.decode('utf-8'))
+# file.write('\n')
 
-file.close()
+# file.close()
 
 time.sleep(2)
 

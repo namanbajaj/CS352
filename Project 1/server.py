@@ -25,7 +25,7 @@ print ("[S]: Got a connection request from a client at {}".format(addr))
 # csockid.send(msg.encode('utf-8'))
 
 # read in data from client
-msg = csockid.recv(100)
+msg = csockid.recv(500)
 print("[S]: Recieved string from client: [{}]".format(msg))
 
 # modifying string
@@ -41,7 +41,7 @@ csockid.send(msg_cap.encode('utf-8'))
 
 time.sleep(2)
 
-file_text = csockid.recv(200)
+file_text = csockid.recv(500)
 print("[S]: Recieved message from client")
 print("[S]: Writing cases out to files")
 
@@ -49,6 +49,7 @@ print("[S]: Writing cases out to files")
 
 file_reverse = open('outr-proj.txt', 'w+')
 file_upper = open('outup-proj.txt', 'w+')
+file_original = open('out-proj.txt', 'w+')
 
 cur_line = ""
 for c in file_text:
@@ -57,8 +58,10 @@ for c in file_text:
         cur_line = cur_line.strip()
         file_reverse.write(cur_line[::-1])
         file_upper.write(cur_line.upper())
+        file_original.write(cur_line)
         file_reverse.write('\n')
         file_upper.write('\n')
+        file_original.write('\n')
         cur_line = ""
     else:
         cur_line += c
