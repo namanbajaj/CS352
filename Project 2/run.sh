@@ -1,8 +1,8 @@
 #!/usr/bin/env fish
 
-set ts1ListenPort 10004
-set ts2ListenPort 10001
-set lsListenPort 10002
+set ts1ListenPort 1103
+set ts2ListenPort 1104
+set lsListenPort 1105
 set ts1Hostname localhost
 set ts2Hostname localhost
 set lsHostname localhost
