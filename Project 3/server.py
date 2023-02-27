@@ -57,7 +57,7 @@ new_password_page = """
 #### Helper functions
 # Printing.
 def print_value(tag, value):
-    print("Here is the", tag)
+    print("Here is the {}".format(tag))
     print("\"\"\"")
     print(value)
     print("\"\"\"")
@@ -87,6 +87,7 @@ with open('secrets.txt', 'r') as f:
         user, secret = line.split()
         secret_data[user] = secret
 
+cookie_store = {}
 
 ### Loop to accept incoming HTTP connections and respond.
 while True:
@@ -102,21 +103,70 @@ while True:
 
     # TODO: Put your application logic here!
     # Parse headers and body and perform various actions
-
     # You need to set the variables:
-    # (1) `html_content_to_send` => add the HTML content you'd
-    # like to send to the client.
+    # (1) `html_content_to_send` => add the HTML content you'd like to send to the client.
     # Right now, we just send the default login page.
     html_content_to_send = login_page
     # But other possibilities exist, including
     # html_content_to_send = success_page + <secret>
     # html_content_to_send = bad_creds_page
     # html_content_to_send = logout_page
-    
-    # (2) `headers_to_send` => add any additional headers
-    # you'd like to send the client?
+
+    # (2) `headers_to_send` => add any additional headers you'd like to send the client?
     # Right now, we don't send any extra headers.
     headers_to_send = ''
+
+    # Check if cookie is present
+    # print("HEADERS SPLIT\n====================")
+    # print(headers.split('\r\n'))
+    cookie = ''
+    if 'Cookie' in headers:
+        cookie = headers.split('\r\n')
+        for line in cookie:
+            if 'Cookie' in line:
+                cookie = line.split(' ')[1].split('=')[1]
+                print("COOKIE: " + cookie)
+                break
+        # print("COOKIE: " + cookie)
+        for user in cookie_store:
+            if cookie_store[user] == int(cookie):
+                html_content_to_send = success_page + secret_data[user]
+            else:
+                html_content_to_send = bad_creds_page
+                
+
+    if body:
+        body = body.split('&')
+        body = [x.split('=') for x in body]
+        body = {x[0]: x[1] for x in body}
+
+        # print_value('body', body)
+        if 'action' in body and body['action'] == 'logout':
+            html_content_to_send = logout_page
+            # Remove cookie
+            headers_to_send = 'Set-Cookie: token=; expires=Thu, 01 Jan 1970 00:00:00 GMT\r\n'
+        elif 'password' in body and body['password'] == 'new' and len(body) == 1 and cookie:
+            html_content_to_send = new_password_page
+        elif 'NewPassword' in body and len(body) == 1:
+            # login_details[body['username']] = body['NewPassword']
+            # find username from current cookie
+            for user in cookie_store:
+                if cookie_store[user] == int(cookie):
+                    login_details[user] = body['NewPassword']
+                    html_content_to_send = success_page + secret_data[user]
+                    break
+        elif 'username' in body and 'password' in body:
+            if body['username'] in login_details and login_details[body['username']] == body['password']:
+                html_content_to_send = success_page + secret_data[body['username']]
+
+                # Set cookie
+                rand_val = random.getrandbits(64)
+                headers_to_send = 'Set-Cookie: token=' + str(rand_val) + '\r\n'
+                cookie_store[body['username']] = rand_val
+            else:
+                html_content_to_send = bad_creds_page
+        else:
+            html_content_to_send = bad_creds_page
 
     # Construct and send the final response
     response  = 'HTTP/1.1 200 OK\r\n'
