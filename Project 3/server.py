@@ -89,6 +89,8 @@ with open('secrets.txt', 'r') as f:
 
 cookie_store = {}
 
+current_user = None
+
 ### Loop to accept incoming HTTP connections and respond.
 while True:
     client, addr = sock.accept()
@@ -131,9 +133,10 @@ while True:
         for user in cookie_store:
             if cookie_store[user] == int(cookie):
                 html_content_to_send = success_page + secret_data[user]
+                break
             else:
                 html_content_to_send = bad_creds_page
-                
+                break
 
     if body:
         body = body.split('&')
@@ -145,7 +148,7 @@ while True:
             html_content_to_send = logout_page
             # Remove cookie
             headers_to_send = 'Set-Cookie: token=; expires=Thu, 01 Jan 1970 00:00:00 GMT\r\n'
-        elif 'password' in body and body['password'] == 'new' and len(body) == 1 and cookie:
+        elif 'password' in body and body['password'] == 'new' and len(body) == 1 and (cookie or current_user):
             html_content_to_send = new_password_page
         elif 'NewPassword' in body and len(body) == 1:
             # login_details[body['username']] = body['NewPassword']
@@ -158,6 +161,8 @@ while True:
         elif 'username' in body and 'password' in body:
             if body['username'] in login_details and login_details[body['username']] == body['password']:
                 html_content_to_send = success_page + secret_data[body['username']]
+
+                current_user = body['username']
 
                 # Set cookie
                 rand_val = random.getrandbits(64)
