@@ -169,28 +169,18 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
 
     # TODO: This is where you will make your changes. You
     # will not need to change any other parts of this file.
-    last_acked = -1
-    first_to_tx = transmit_entire_window_from(win_left_edge)
-    final_ack = INIT_SEQNO + content_len
-    while last_acked != final_ack:
+    while win_left_edge < INIT_SEQNO + content_len:
+        win_left_edge = transmit_one()
         results, _, _ = select.select([cs], [], [], RTO)
-        print("Last acked: {}".format(last_acked))
         if results:
             data_from_receiver, _ = cs.recvfrom(100)
             ack_msg = Msg.deserialize(data_from_receiver)
             print("Received ACK {}".format(str(ack_msg.ack)))
-
-            if ack_msg.ack >= last_acked:
-                last_acked = ack_msg.ack
-                win_left_edge = last_acked
-                win_right_edge = min(win_left_edge + win_size, INIT_SEQNO + content_len)
-
-            if win_left_edge < INIT_SEQNO + content_len:
-                first_to_tx = transmit_entire_window_from(first_to_tx)
         else:
             print("Timeout")
-            first_to_tx = transmit_one()
-
+            win_left_edge -= CHUNK_SIZE
+            if win_left_edge < INIT_SEQNO:
+                win_left_edge = INIT_SEQNO
             
 
 if __name__ == "__main__":
