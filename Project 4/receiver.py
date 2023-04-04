@@ -262,9 +262,46 @@ def receiver(ss, ooo_enabled):
         print ("Error: File length invalid! quitting.")
         ss.close()
         exit(-1)
+    
+    output = ''   # final result of the download
+
+    # Retrieve username
+    msg2, ack_msg2, sender_addr2 = get_msg_ack()
+    output += msg2.msg
+    if "UN@" in msg2.msg:
+        idx = msg2.msg.index("UN@")
+        start_of_username = idx + 3
+        username = ""
+        while start_of_username < len(msg2.msg) and msg2.msg[start_of_username] != ' ' and msg2.msg[start_of_username] != '\n':
+            username += msg2.msg[start_of_username]
+            start_of_username += 1
+
+        # print("Username: " + username)
+
+        try:
+            f = open("UN.txt", "r")
+            users = f.read().splitlines()
+            f.close()
+
+            if username in users:
+                print("Username found: " + username)
+            else:
+                print("Username not found")
+                f = open("UN.txt", "a")
+                f.write(username + "\n")
+                f.close()
+        except:
+            print("Username not found")
+            f = open("UN.txt", "w+")
+            f.write(username + "\n")
+            f.close()
+        
+    else:
+        print("Username not found")
+    
+    lossy_sendto(ss, ack_msg2, sender_addr2)
 
     # Receive and ACK the subsequent (data) packets
-    output = ''   # final result of the download
     ooo_data = {} # out of order data buffer, only active if
                   # ooo_enabled is set.
     last_seq_expected = msg.seq + len(msg.msg) + total_bytes - 1
